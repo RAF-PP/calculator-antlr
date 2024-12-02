@@ -77,6 +77,8 @@ public class Main {
         if (calculator.hadError()) return;
 
         new Typecheck(calculator).typecheck(program);
+        System.out.println("tAST:");
+        program.prettyPrint(pp);
         if (calculator.hadError()) return;
     }
 }
