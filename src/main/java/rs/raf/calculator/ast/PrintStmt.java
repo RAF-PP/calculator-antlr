@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @EqualsAndHashCode(callSuper=true)
 /** Prints values of expressions.  */
-public class PrintStmt extends Statement {
+public final class PrintStmt extends Statement {
     private List<Expr> args;
 
     public PrintStmt(Location location, List<Expr> args) {

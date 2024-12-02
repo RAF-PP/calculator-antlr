@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @EqualsAndHashCode(callSuper=true)
 /** A statement that evaluates an expression.  */
-public class ExprStmt extends Statement {
+public final class ExprStmt extends Statement {
     private Expr expr;
 
     public ExprStmt(Location location, Expr expr) {

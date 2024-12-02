@@ -7,7 +7,8 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
-public class Expr extends Tree {
+public sealed class Expr extends Tree
+        permits VarRef, VectorExpr, ErrorExpr, NumberLit {
     public enum Operation {
 	ADD("+"),
 	SUB("-"),
@@ -31,6 +32,8 @@ public class Expr extends Tree {
     private Operation operation;
     private Expr lhs;
     private Expr rhs;
+
+    private Type resultType;
 
     public Expr(Location location, Operation operation, Expr lhs, Expr rhs) {
         super(location);

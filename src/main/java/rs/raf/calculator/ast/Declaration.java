@@ -6,9 +6,12 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
-public class Declaration extends Statement {
+public final class Declaration extends Statement {
     private String name;
     private Expr value;
+
+    /** Type of the value stored in this variable.  */
+    private Type declaredType;
 
     public Declaration(Location location, String name, Expr value) {
 	super(location);

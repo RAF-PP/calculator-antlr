@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
-public class VarRef extends Expr {
+public final class VarRef extends Expr {
     private Declaration variable;
 
     protected VarRef(Location location, Declaration variable) {

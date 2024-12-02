@@ -1,7 +1,7 @@
 package rs.raf.calculator.ast;
 
 /** A special node indicating an error occurred.  */
-public class ErrorExpr extends Expr {
+public final class ErrorExpr extends Expr {
     protected ErrorExpr(Location location) {
         super(location);
     }

@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.CharStreams;
 import rs.raf.calculator.Calculator;
 import rs.raf.calculator.Parser;
 import rs.raf.calculator.Scanner;
+import rs.raf.calculator.Typecheck;
 import rs.raf.calculator.ast.ASTPrettyPrinter;
 import rs.raf.calculator.ast.CSTtoASTConverter;
 import rs.raf.calculator.ast.StatementList;
@@ -73,5 +74,9 @@ public class Main {
         var pp = new ASTPrettyPrinter(System.out);
         var program = (StatementList) tree.accept(treeProcessor);
         program.prettyPrint(pp);
+        if (calculator.hadError()) return;
+
+        new Typecheck(calculator).typecheck(program);
+        if (calculator.hadError()) return;
     }
 }

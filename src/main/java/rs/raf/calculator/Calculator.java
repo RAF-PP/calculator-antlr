@@ -1,12 +1,16 @@
 package rs.raf.calculator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
+
+import rs.raf.calculator.ast.*;
+
 import lombok.*;
-import rs.raf.calculator.ast.Location;
-import rs.raf.calculator.ast.Position;
 
 @Getter
 @Setter
@@ -45,5 +49,14 @@ public class Calculator {
         System.err.printf ("error: %d:%d: %s\n", p.line(), p.column(),
                            message.formatted(args));
         setHadError(true);
+    }
+
+    /* Type handling.  */
+    private final NumberType numberType = new NumberType();
+    @Getter(AccessLevel.NONE)
+    private final Map<Type, ListType> listTypes = new HashMap<>();
+
+    public Type listOfType(Type elementType) {
+        return listTypes.computeIfAbsent(elementType, ListType::new);
     }
 }

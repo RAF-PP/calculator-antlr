@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
-public class NumberLit extends Expr {
+public final class NumberLit extends Expr {
     private double value;
 
     public NumberLit(Location location, double value) {

@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
-public class VectorExpr extends Expr {
+public final class VectorExpr extends Expr {
     private List<Expr> elements;
 
     public VectorExpr(Location location, List<Expr> elements) {
