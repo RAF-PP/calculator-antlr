@@ -56,6 +56,13 @@ public sealed class Expr extends Tree
 		() -> {
 		    lhs.prettyPrint(pp);
 		    rhs.prettyPrint(pp);
+
+                    if (getResultType() != null) {
+                        pp.node("type",
+                                () ->
+                                pp.terminal(getResultType()
+                                            .userReadableName()));
+                    }
 		});
     }
 }
