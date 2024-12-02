@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
@@ -38,7 +39,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
                so they can't be anything else), ...  */
             .map(x -> (Statement) x)
             /* ... and put them into a list.  */
-            .toList();
+            .collect(Collectors.toCollection(ArrayList::new));
         return new StatementList(getLocation(ctx), stmts);
     }
 
@@ -97,7 +98,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
                so they can't be anything else), ...  */
             .map(x -> (Statement) x)
             /* ... and put them into a list.  */
-            .toList();
+            .collect(Collectors.toCollection(ArrayList::new));
 
         /* Close the one opened above.  */
         closeBlock();
@@ -146,7 +147,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
             /* ... then cast them to expressions, ...  */
             .map(x -> (Expr) x)
             /* ... and put them into a list.  */
-            .toList();
+            .collect(Collectors.toCollection(ArrayList::new));
         return new PrintStmt(getLocation(ctx), args);
     }
 
@@ -278,7 +279,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
             /* ... then cast them to expressions, ...  */
             .map(x -> (Expr) x)
             /* ... and put them into a list.  */
-            .toList();
+            .collect(Collectors.toCollection(ArrayList::new));
         return new VectorExpr(getLocation(ctx), args);
     }
 
