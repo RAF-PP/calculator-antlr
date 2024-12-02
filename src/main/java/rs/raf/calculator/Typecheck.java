@@ -27,6 +27,7 @@ public class Typecheck {
             stmt.setDeclaredType(newValue.getResultType());
         }
         case ExprStmt stmt ->
+            /* Just check the inner expression.  */
             stmt.setExpr(typecheck(stmt.getExpr()));
 
         /* Statement list logic is above.  */
