@@ -1,5 +1,11 @@
 package rs.raf.calculator.ast;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.*;
@@ -8,10 +14,21 @@ import calculator.parser.CalculatorParser.*;
 import calculator.parser.CalculatorLexer;
 import calculator.parser.CalculatorVisitor;
 
+import rs.raf.calculator.Calculator;
+
 public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements CalculatorVisitor<Tree> {
+    private Calculator c;
+
+    public CSTtoASTConverter(Calculator calculator) {
+        this.c = calculator;
+        /* Open the global scope.  */
+        openBlock();
+    }
 
     @Override
     public Tree visitStart(StartContext ctx) {
+        /* We don't open a new scope here, because we should be in the global
+           scope we opened in the constructor.  */
         var stmts = ctx.statement()
             /* Take all the parsed statements, ... */
             .stream()
@@ -22,6 +39,68 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
             .map(x -> (Statement) x)
             /* ... and put them into a list.  */
             .toList();
+        return new StatementList(getLocation(ctx), stmts);
+    }
+
+    /* A stack of environments.  */
+    private List<Map<String, Declaration>> environments = new ArrayList<>();
+
+    /** Open a new scope. */
+    private void openBlock() {
+        environments.add(new HashMap<>());
+    }
+
+    /** Removes the last scope. */
+    private void closeBlock() {
+        environments.removeLast();
+    }
+
+    /** Saves a declaration into the current environment, diagnosing
+        redeclaration. */
+    private void pushDecl(String name, Declaration decl) {
+        /* Intentionally overwriting the old variable as error recovery.  */
+        var oldDecl = environments.getLast().put(name, decl);
+        if (oldDecl != null) {
+            c.error(decl.getLocation(), "");
+        }
+    }
+
+    /** Tries to find a declaration in any scope parent to this one..  */
+    private Optional<Declaration> lookup(Location loc, String name) {
+        /* Walk through the scope, starting at the top one, ... */
+        for (var block : environments.reversed()) {
+            /* ... for each of them, try to find the name we're looking for in
+               the environment... */
+            var decl = block.get(name);
+            if (decl != null) {
+                /* ... and if it is found, return it....  */
+                return Optional.of(decl);
+            }
+        }
+        /* ... otherwise, we fell through and found nothing.  Diagnose and
+           continue.  */
+        c.error(loc, "failed to find variable '%s' in current scope", name);
+        return Optional.empty();
+    }
+
+    @Override
+    public Tree visitBlock(BlockContext ctx) {
+        /* Open a new environment.  */
+        openBlock();
+
+        var stmts = ctx.statement()
+            /* Take all the parsed statements, ... */
+            .stream()
+            /* ... visit them using this visitor, ... */
+            .map(this::visit)
+            /* ... then cast them to statements (because 'start: statement*',
+               so they can't be anything else), ...  */
+            .map(x -> (Statement) x)
+            /* ... and put them into a list.  */
+            .toList();
+
+        /* Close the one opened above.  */
+        closeBlock();
         return new StatementList(getLocation(ctx), stmts);
     }
 
@@ -47,7 +126,14 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
            of the variable we're declaring.  */
         var name = ctx.IDENTIFIER().getText();
         var value = (Expr) visit(ctx.expr());
-        return new Declaration(getLocation(ctx), name, value);
+
+        /* Intentionally after the visit above in order to not declare the
+           value in its right-hand side.  */
+        var decl = new Declaration(getLocation(ctx), name, value);
+        /* Save the declaration we just parsed.  */
+        pushDecl(name, decl);
+
+        return decl;
     }
 
     @Override
@@ -160,7 +246,13 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
 
     @Override
     public Tree visitVariableReference(VariableReferenceContext ctx) {
-        return new VarRef(getLocation(ctx), ctx.IDENTIFIER().getText());
+        /* Try to find the variable, ... */
+        var loc = getLocation(ctx);
+        return lookup(loc, ctx.IDENTIFIER().getText())
+            /* ... and if you do find it, make it into an expression, ... */
+            .map(decl -> (Tree) new VarRef(loc, decl))
+            /* ... and if you fail, make it an error expression.  */
+            .orElseGet(() -> new ErrorExpr(loc));
     }
 
     @Override

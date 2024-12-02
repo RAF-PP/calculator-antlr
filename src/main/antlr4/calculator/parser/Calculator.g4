@@ -6,6 +6,7 @@ statement
     : declaration ';'
     | printStatement ';'
     | expr ';'
+    | block
     ;
 
 declaration
@@ -41,6 +42,8 @@ atom
 vectorLiteral
     : '<' (expr (COMMA expr)*)? '>'
     ;
+
+block: '{' statement* '}';
 
 // Lexer rules
 fragment DIGIT: [0-9];

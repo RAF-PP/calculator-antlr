@@ -16,6 +16,9 @@ import java.io.InputStreamReader;
 
 public class Main {
     private static final Calculator calculator = new Calculator();
+    /* Holds the global scope, so keep it open all the time.  */
+    private static final CSTtoASTConverter treeProcessor
+        = new CSTtoASTConverter(calculator);
 
     public static void main(String[] args) throws IOException {
         if (args.length == 1) {
@@ -68,7 +71,7 @@ public class Main {
 
         System.out.println("AST:");
         var pp = new ASTPrettyPrinter(System.out);
-        var program = (StatementList) tree.accept(new CSTtoASTConverter());
+        var program = (StatementList) tree.accept(treeProcessor);
         program.prettyPrint(pp);
     }
 }

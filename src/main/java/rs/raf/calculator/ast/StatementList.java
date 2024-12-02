@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
-public class StatementList extends Tree {
+public class StatementList extends Statement {
     private List<Statement> stmts;
 
     public StatementList(Location location, List<Statement> stmts) {
