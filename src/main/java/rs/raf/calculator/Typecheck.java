@@ -18,6 +18,7 @@ public class Typecheck {
         switch (stmt_) {
         case PrintStmt stmt -> {
             /* Prints can print anything, so all are okay.  */
+            stmt.getArgs().forEach(this::typecheck);
         }
         case Declaration stmt -> {
             /* The type of the left-hand side of a 'let' statement is the same
