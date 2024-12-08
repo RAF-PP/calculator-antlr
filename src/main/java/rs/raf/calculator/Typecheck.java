@@ -18,7 +18,11 @@ public class Typecheck {
         switch (stmt_) {
         case PrintStmt stmt -> {
             /* Prints can print anything, so all are okay.  */
+
             stmt.getArgs().forEach(this::typecheck);
+        }
+        case FunctionDeclaration functionDeclaration -> {
+
         }
         case Declaration stmt -> {
             /* The type of the left-hand side of a 'let' statement is the same
@@ -33,6 +37,16 @@ public class Typecheck {
 
         /* Statement list logic is above.  */
         case StatementList stmt -> typecheck(stmt);
+        case Argument argument -> {
+
+        }
+        case Arguments arguments -> {
+
+        }
+
+        case ReturnStatement returnStatement -> {
+
+        }
         }
     }
 

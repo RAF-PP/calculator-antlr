@@ -7,10 +7,32 @@ statement
     | printStatement ';'
     | expr ';'
     | block
+    | declareFunction
+    | returnStmt ';'
     ;
 
 declaration
     : 'let' IDENTIFIER '=' expr
+    ;
+
+declareFunction: FUNCTION IDENTIFIER '(' arglist ')' ':' retT=typeid (body = block | ';');
+
+arglist
+    : (argument (',' argument)*)?
+    ;
+
+argument: typeid IDENTIFIER;
+
+returnStmt: RETURN expr?;
+
+typeid:
+    | INT_TYPE
+    | VOID_TYPE
+    | arrType
+    ;
+
+arrType
+    : ARR '[' typeid ']'
     ;
 
 printStatement
@@ -62,7 +84,12 @@ VECTOR_CLOSE: '>';
 COMMA: ',';
 EQUAL: '=';
 
+FUNCTION: 'fun';
 PRINT: 'print';
+ARR: 'arr';
+RETURN: 'return';
+INT_TYPE: 'int';
+VOID_TYPE: 'void';
 
 NUMBER: ('-')? DIGIT+ ('.' DIGIT+)?; // Allows integers and decimals
 

@@ -66,13 +66,14 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         }
     }
 
-    /** Tries to find a declaration in any scope parent to this one..  */
+    /** Tries to find a declaration in any scope parent to this one.  */
     private Optional<Declaration> lookup(Location loc, String name) {
         /* Walk through the scope, starting at the top one, ... */
         for (var block : environments.reversed()) {
             /* ... for each of them, try to find the name we're looking for in
                the environment... */
             var decl = block.get(name);
+
             if (decl != null) {
                 /* ... and if it is found, return it....  */
                 return Optional.of(decl);
@@ -135,6 +136,66 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         pushDecl(name, decl);
 
         return decl;
+    }
+
+    @Override
+    public Tree visitDeclareFunction(DeclareFunctionContext ctx) {
+        var name = ctx.IDENTIFIER().getText();
+        var args = (Arguments) visitArglist(ctx.arglist());
+        var declLoc = getLocation(ctx.start).span(getLocation(ctx.retT.start));
+
+        var body = (StatementList) visit(ctx.body);
+
+        var funDecl = new FunctionDeclaration(declLoc, args, name, body);
+        pushDecl(name, funDecl);
+
+        return funDecl;
+    }
+
+    @Override
+    public Tree visitArglist(ArglistContext ctx) {
+        // Visit each argument in the list and collect the results into a list
+        var arguments = ctx.argument()
+                .stream()
+                .map(this::visit)
+                .map(x -> (Argument) x) // Cast each visited result to an Argument
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // Create an ArgumentList node from the collected arguments
+        return new Arguments(getLocation(ctx), arguments);
+    }
+
+    @Override
+    public Tree visitArgument(ArgumentContext ctx) {
+        // Extract the type and identifier for the argument
+        String identifier = ctx.IDENTIFIER().getText();
+        Declaration decl = new Declaration(getLocation(ctx.start), identifier, null);
+        pushDecl(identifier, decl);
+        // Create and return an Argument node
+        return new Argument(getLocation(ctx), identifier);
+    }
+
+    @Override
+    public Tree visitReturnStmt(ReturnStmtContext ctx) {
+        var op = (Expr) visit(ctx.expr());
+        return new ReturnStatement(getLocation(ctx.RETURN()), op);
+    }
+
+    @Override
+    public Tree visitTypeid(TypeidContext ctx) {
+        if (ctx.INT_TYPE() != null) {
+            return visit(ctx.INT_TYPE());
+        }
+        if (ctx.arrType() != null) {
+            visit(ctx.arrType());
+        }
+
+        throw new AssertionError ("Bad type");
+    }
+
+    @Override
+    public Tree visitArrType(ArrTypeContext ctx) {
+        return visit(ctx.typeid());
     }
 
     @Override
