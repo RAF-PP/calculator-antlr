@@ -138,6 +138,19 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         return decl;
     }
 
+    /* Java is an awful programming language.  That, combined with the visitor
+       pattern, means that one cannot return two different types from two
+       different visitors.  Hence, this is a new visitor just for types.  */
+    private Type convertType(TypeidContext ctx) {
+        return switch (ctx) {
+        case ArrTypeContext arr ->
+            c.listOfType(convertType(arr.typeid()));
+        case VoidTypeContext ignored -> c.getVoidType();
+        case NumberTypeContext ignored -> c.getNumberType();
+        default -> throw new AssertionError("forgot a case");
+        };
+    }
+
     @Override
     public Tree visitDeclareFunction(DeclareFunctionContext ctx) {
         var name = ctx.IDENTIFIER().getText();
@@ -147,15 +160,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         var body = (StatementList) visit(ctx.body);
         closeBlock();
 
-        var funDecl = new FunctionDeclaration(declLoc, args, name, body, new VoidType());
-
-        if (ctx.retT.INT_TYPE() != null) {
-            funDecl.setReturnType(new IntegerType());
-        }
-//        if (ctx.retT.arrType() != null) {
-//            var returnType = visit(ctx.retT);
-//            throw new IllegalStateException("Unexpected type for array return type: " + returnType.getClass());
-//        }
+        var funDecl = new FunctionDeclaration(declLoc, args, name, body, convertType(ctx.retT));
 
         pushDecl(name, funDecl);
 
@@ -180,6 +185,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         // Extract the type and identifier for the argument
         String identifier = ctx.IDENTIFIER().getText();
         Declaration decl = new Declaration(getLocation(ctx.start), identifier, null);
+        decl.setDeclaredType(convertType(ctx.typeid()));
         pushDecl(identifier, decl);
         // Create and return an Argument node
         return new Argument(getLocation(ctx), identifier);
@@ -189,23 +195,6 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
     public Tree visitReturnStmt(ReturnStmtContext ctx) {
         var op = (Expr) visit(ctx.expr());
         return new ReturnStatement(getLocation(ctx.RETURN()), op);
-    }
-
-    @Override
-    public Tree visitTypeid(TypeidContext ctx) {
-        if (ctx.INT_TYPE() != null) {
-            return visit(ctx.INT_TYPE());
-        }
-        if (ctx.arrType() != null) {
-            return visit(ctx.arrType());
-        }
-
-        throw new AssertionError ("Bad type");
-    }
-
-    @Override
-    public Tree visitArrType(ArrTypeContext ctx) {
-        return visit(ctx.typeid());
     }
 
     @Override
@@ -381,5 +370,20 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         /* And then put it together.  */
         var end = new Position (start.line (), start.column () + length - 1);
         return new Location (start, end);
+    }
+
+    @Override
+    public Tree visitNumberType(NumberTypeContext ctx) {
+        throw new AssertionError("use #convertType");
+    }
+
+    @Override
+    public Tree visitVoidType(VoidTypeContext ctx) {
+        throw new AssertionError("use #convertType");
+    }
+
+    @Override
+    public Tree visitArrType(ArrTypeContext ctx) {
+        throw new AssertionError("use #convertType");
     }
 }

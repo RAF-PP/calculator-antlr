@@ -26,13 +26,9 @@ argument: typeid IDENTIFIER;
 returnStmt: RETURN expr?;
 
 typeid:
-    | INT_TYPE
-    | VOID_TYPE
-    | arrType
-    ;
-
-arrType
-    : ARR '[' typeid ']'
+      NUMBER_TYPE #NumberType
+    | VOID_TYPE #VoidType
+    | ARR '[' typeid ']' #ArrType
     ;
 
 printStatement
@@ -88,7 +84,7 @@ FUNCTION: 'fun';
 PRINT: 'print';
 ARR: 'arr';
 RETURN: 'return';
-INT_TYPE: 'int';
+NUMBER_TYPE: 'number';
 VOID_TYPE: 'void';
 
 NUMBER: ('-')? DIGIT+ ('.' DIGIT+)?; // Allows integers and decimals

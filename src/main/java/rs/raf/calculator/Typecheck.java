@@ -164,7 +164,7 @@ public class Typecheck {
     /** Attempts to make the expression EXPR fit into a place of type TO.  */
     private Expr tryAndConvert(Type to, Expr expr) {
         /* We expect the EXPR to be typechecked.  */
-        assert expr.getResultType() != null;
+        assert expr.getResultType() != null : "expr " + expr + " not checked";
 
         /* Here we could add any conversions we deem necessary.  */
         if (!expr.getResultType().equals(to)) {
