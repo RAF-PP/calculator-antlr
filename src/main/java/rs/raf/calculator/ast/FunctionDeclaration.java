@@ -1,23 +1,24 @@
 package rs.raf.calculator.ast;
 
-import calculator.parser.CalculatorParser;
 import lombok.Getter;
 import lombok.Setter;
 
+@Getter
+@Setter
 public final class FunctionDeclaration extends Declaration {
 
-    @Getter
-    @Setter
+
     private Arguments args;
     private Type returnType;
     private String name;
     private StatementList body;
 
-    public FunctionDeclaration (Location location, Arguments args, String name, StatementList body) {
+    public FunctionDeclaration (Location location, Arguments args, String name, StatementList body, Type returnType) {
         super (location, name, null);
         this.args = args;
         this.name = name;
         this.body = body;
+        this.returnType = returnType;
     }
 
     @Override
@@ -26,7 +27,7 @@ public final class FunctionDeclaration extends Declaration {
             pp.terminal("name: " + name);
             pp.node("returnType", () -> {
                 if (returnType != null) {
-                    pp.terminal("type: " + returnType);
+                    pp.terminal("type: " + returnType.userReadableName());
                 } else {
                     pp.terminal("void");
                 }

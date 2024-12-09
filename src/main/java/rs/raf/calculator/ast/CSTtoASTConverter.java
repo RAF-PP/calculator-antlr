@@ -141,12 +141,22 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
     @Override
     public Tree visitDeclareFunction(DeclareFunctionContext ctx) {
         var name = ctx.IDENTIFIER().getText();
-        var args = (Arguments) visitArglist(ctx.arglist());
         var declLoc = getLocation(ctx.start).span(getLocation(ctx.retT.start));
-
+        openBlock();
+        var args = (Arguments) visitArglist(ctx.arglist());
         var body = (StatementList) visit(ctx.body);
+        closeBlock();
 
-        var funDecl = new FunctionDeclaration(declLoc, args, name, body);
+        var funDecl = new FunctionDeclaration(declLoc, args, name, body, new VoidType());
+
+        if (ctx.retT.INT_TYPE() != null) {
+            funDecl.setReturnType(new IntegerType());
+        }
+//        if (ctx.retT.arrType() != null) {
+//            var returnType = visit(ctx.retT);
+//            throw new IllegalStateException("Unexpected type for array return type: " + returnType.getClass());
+//        }
+
         pushDecl(name, funDecl);
 
         return funDecl;
@@ -187,7 +197,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
             return visit(ctx.INT_TYPE());
         }
         if (ctx.arrType() != null) {
-            visit(ctx.arrType());
+            return visit(ctx.arrType());
         }
 
         throw new AssertionError ("Bad type");
