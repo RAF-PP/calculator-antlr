@@ -56,7 +56,6 @@ public class Typecheck {
         case ReturnStatement returnStatement -> {
             var cfn = currentFunction.getName();
             var rt = ((Type) currentFunction.getReturnType ());
-            System.out.printf(rt.userReadableName() + "here");
             var needsReturn = !(rt instanceof VoidType);
             var hasReturn = returnStatement.getValue () != null;
 
