@@ -66,13 +66,14 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         }
     }
 
-    /** Tries to find a declaration in any scope parent to this one..  */
+    /** Tries to find a declaration in any scope parent to this one.  */
     private Optional<Declaration> lookup(Location loc, String name) {
         /* Walk through the scope, starting at the top one, ... */
         for (var block : environments.reversed()) {
             /* ... for each of them, try to find the name we're looking for in
                the environment... */
             var decl = block.get(name);
+
             if (decl != null) {
                 /* ... and if it is found, return it....  */
                 return Optional.of(decl);
@@ -135,6 +136,65 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         pushDecl(name, decl);
 
         return decl;
+    }
+
+    /* Java is an awful programming language.  That, combined with the visitor
+       pattern, means that one cannot return two different types from two
+       different visitors.  Hence, this is a new visitor just for types.  */
+    private Type convertType(TypeidContext ctx) {
+        return switch (ctx) {
+        case ArrTypeContext arr ->
+            c.listOfType(convertType(arr.typeid()));
+        case VoidTypeContext ignored -> c.getVoidType();
+        case NumberTypeContext ignored -> c.getNumberType();
+        default -> throw new AssertionError("forgot a case");
+        };
+    }
+
+    @Override
+    public Tree visitDeclareFunction(DeclareFunctionContext ctx) {
+        var name = ctx.IDENTIFIER().getText();
+        var declLoc = getLocation(ctx.start).span(getLocation(ctx.retT.start));
+        openBlock();
+        var args = (Arguments) visitArglist(ctx.arglist());
+        var body = (StatementList) visit(ctx.body);
+        closeBlock();
+
+        var funDecl = new FunctionDeclaration(declLoc, args, name, body, convertType(ctx.retT));
+
+        pushDecl(name, funDecl);
+
+        return funDecl;
+    }
+
+    @Override
+    public Tree visitArglist(ArglistContext ctx) {
+        // Visit each argument in the list and collect the results into a list
+        var arguments = ctx.argument()
+                .stream()
+                .map(this::visit)
+                .map(x -> (Argument) x) // Cast each visited result to an Argument
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // Create an ArgumentList node from the collected arguments
+        return new Arguments(getLocation(ctx), arguments);
+    }
+
+    @Override
+    public Tree visitArgument(ArgumentContext ctx) {
+        // Extract the type and identifier for the argument
+        String identifier = ctx.IDENTIFIER().getText();
+        Declaration decl = new Declaration(getLocation(ctx.start), identifier, null);
+        decl.setDeclaredType(convertType(ctx.typeid()));
+        pushDecl(identifier, decl);
+        // Create and return an Argument node
+        return new Argument(getLocation(ctx), identifier);
+    }
+
+    @Override
+    public Tree visitReturnStmt(ReturnStmtContext ctx) {
+        var op = (Expr) visit(ctx.expr());
+        return new ReturnStatement(getLocation(ctx.RETURN()), op);
     }
 
     @Override
@@ -310,5 +370,20 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         /* And then put it together.  */
         var end = new Position (start.line (), start.column () + length - 1);
         return new Location (start, end);
+    }
+
+    @Override
+    public Tree visitNumberType(NumberTypeContext ctx) {
+        throw new AssertionError("use #convertType");
+    }
+
+    @Override
+    public Tree visitVoidType(VoidTypeContext ctx) {
+        throw new AssertionError("use #convertType");
+    }
+
+    @Override
+    public Tree visitArrType(ArrTypeContext ctx) {
+        throw new AssertionError("use #convertType");
     }
 }

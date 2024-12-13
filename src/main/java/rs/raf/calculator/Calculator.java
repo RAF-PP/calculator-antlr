@@ -53,6 +53,7 @@ public class Calculator {
 
     /* Type handling.  */
     private final NumberType numberType = new NumberType();
+    private final VoidType voidType = new VoidType();
     @Getter(AccessLevel.NONE)
     private final Map<Type, ListType> listTypes = new HashMap<>();
 

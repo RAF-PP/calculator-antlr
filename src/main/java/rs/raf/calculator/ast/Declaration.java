@@ -6,7 +6,7 @@ import lombok.*;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper=true)
-public final class Declaration extends Statement {
+public sealed class Declaration extends Statement permits FunctionDeclaration {
     private String name;
     private Expr value;
 

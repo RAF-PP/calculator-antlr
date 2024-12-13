@@ -4,6 +4,7 @@ import rs.raf.calculator.ast.*;
 
 public class Typecheck {
     private Calculator c;
+    private FunctionDeclaration currentFunction;
 
     public Typecheck(Calculator calculator) {
         this.c = calculator;
@@ -18,7 +19,20 @@ public class Typecheck {
         switch (stmt_) {
         case PrintStmt stmt -> {
             /* Prints can print anything, so all are okay.  */
+
             stmt.getArgs().forEach(this::typecheck);
+        }
+        case FunctionDeclaration functionDeclaration -> {
+            FunctionDeclaration oldFunctionDeclaration = currentFunction;
+            try {
+                currentFunction = functionDeclaration;
+
+                if (functionDeclaration.getBody() != null) {
+                    typecheck(functionDeclaration.getBody());
+                }
+            } finally {
+                currentFunction = oldFunctionDeclaration;
+            }
         }
         case Declaration stmt -> {
             /* The type of the left-hand side of a 'let' statement is the same
@@ -33,6 +47,30 @@ public class Typecheck {
 
         /* Statement list logic is above.  */
         case StatementList stmt -> typecheck(stmt);
+        case Argument argument -> {
+            {/* Nothing to do.  */}        }
+        case Arguments arguments -> {
+            {/* Nothing to do.  */}
+        }
+
+        case ReturnStatement returnStatement -> {
+            var cfn = currentFunction.getName();
+            var rt = ((Type) currentFunction.getReturnType ());
+            var needsReturn = !(rt instanceof VoidType);
+            var hasReturn = returnStatement.getValue () != null;
+
+            if (needsReturn && !hasReturn)
+                c.error (currentFunction.getLocation (),
+                        "function '%s' needs a return value, but none was given",
+                        cfn);
+            else if (!needsReturn && hasReturn)
+                c.error (returnStatement.getValue ().getLocation (),
+                        "function '%s' does not return a value, but one was given",
+                        cfn);
+
+            if (hasReturn && needsReturn)
+                returnStatement.setValue (typecheck (returnStatement.getValue()));
+        }
         }
     }
 
@@ -126,7 +164,7 @@ public class Typecheck {
     /** Attempts to make the expression EXPR fit into a place of type TO.  */
     private Expr tryAndConvert(Type to, Expr expr) {
         /* We expect the EXPR to be typechecked.  */
-        assert expr.getResultType() != null;
+        assert expr.getResultType() != null : "expr " + expr + " not checked";
 
         /* Here we could add any conversions we deem necessary.  */
         if (!expr.getResultType().equals(to)) {
