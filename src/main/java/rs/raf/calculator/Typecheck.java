@@ -141,7 +141,6 @@ public class Typecheck {
             case FunctionCall expr -> {
                 // Get the function name and arguments
                 String functionName = expr.getFunctionName();
-                System.out.println(expr.getArguments());
                 List<Type> argumentTypes = new ArrayList<>();
 
                 // Collect the argument types from the expression
@@ -149,7 +148,6 @@ public class Typecheck {
                     typecheck(arg);
                     argumentTypes.add(arg.getResultType()); // Assuming each argument is already typechecked
                 }
-                System.out.printf(argumentTypes.toString());
 
                 // Look up the function in the symbol table or function registry
                 FunctionType function = getFunction(functionName, argumentTypes);
@@ -158,10 +156,10 @@ public class Typecheck {
                     // Function not found, report an error
                     c.error(expr.getLocation(),
                             "Function '%s' with arguments %s not found.",
-                            functionName, argumentTypes);
+                            functionName, argumentTypes.stream().map(Type::userReadableName).toList()
+                    );
                     return expr;
                 }
-
                 // Function found, set the result type to the return type of the function
                 expr.setResultType(function.getReturnType());
 
@@ -242,7 +240,7 @@ public class Typecheck {
             // If conversion isn't possible, report an error
             c.error(expr.getLocation(),
                     "Cannot convert expression of type '%s' to expected type '%s'.",
-                    expr.getResultType(), expectedType);
+                    expr.getResultType().userReadableName(), expectedType.userReadableName());
             return expr;
         }
     }
