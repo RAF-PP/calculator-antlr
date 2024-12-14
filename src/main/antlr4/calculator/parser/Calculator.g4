@@ -55,6 +55,11 @@ atom
     | IDENTIFIER #VariableReference
     | '(' expr ')' #GroupingOperator
     | vectorLiteral #VectorConstructor
+    | functionCall #FunCall
+    ;
+
+functionCall
+    : IDENTIFIER '(' (expr (COMMA expr)*)? ')'
     ;
 
 vectorLiteral

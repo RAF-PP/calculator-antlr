@@ -1,8 +1,13 @@
 package rs.raf.calculator.ast;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
 public final class Arguments extends Statement{
     private final List<Argument> arguments;
 

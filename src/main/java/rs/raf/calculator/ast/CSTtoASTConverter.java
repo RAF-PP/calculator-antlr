@@ -188,7 +188,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         decl.setDeclaredType(convertType(ctx.typeid()));
         pushDecl(identifier, decl);
         // Create and return an Argument node
-        return new Argument(getLocation(ctx), identifier);
+        return new Argument(getLocation(ctx), identifier, convertType(ctx.typeid()));
     }
 
     @Override
@@ -326,6 +326,24 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
     public Tree visitVectorConstructor(VectorConstructorContext ctx) {
         /* This one is easy, too - the rule just invokes vectorLiteral.  */
         return (Expr) visit(ctx.vectorLiteral());
+    }
+
+    @Override
+    public Tree visitFunCall(FunCallContext ctx) {
+        return (Expr) visit(ctx.functionCall());
+    }
+
+    @Override
+    public Tree visitFunctionCall(FunctionCallContext ctx) {
+        String functionName = ctx.IDENTIFIER().getText();
+
+        var expressionArgs = ctx.expr()
+                .stream()
+                .map(this::visit)
+                .map(x -> (Expr) x)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        return new FunctionCall(getLocation(ctx), functionName, expressionArgs);
     }
 
     @Override

@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @EqualsAndHashCode(callSuper=true)
 public sealed class Expr extends Tree
-        permits VarRef, VectorExpr, ErrorExpr, NumberLit {
+        permits ErrorExpr, FunctionCall, NumberLit, VarRef, VectorExpr {
     public enum Operation {
 	ADD("+"),
 	SUB("-"),
