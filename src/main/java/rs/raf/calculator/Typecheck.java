@@ -141,13 +141,15 @@ public class Typecheck {
             case FunctionCall expr -> {
                 // Get the function name and arguments
                 String functionName = expr.getFunctionName();
-
+                System.out.println(expr.getArguments());
                 List<Type> argumentTypes = new ArrayList<>();
 
                 // Collect the argument types from the expression
                 for (Expr arg : expr.getArguments()) {
+                    typecheck(arg);
                     argumentTypes.add(arg.getResultType()); // Assuming each argument is already typechecked
                 }
+                System.out.printf(argumentTypes.toString());
 
                 // Look up the function in the symbol table or function registry
                 FunctionType function = getFunction(functionName, argumentTypes);
@@ -157,7 +159,7 @@ public class Typecheck {
                     c.error(expr.getLocation(),
                             "Function '%s' with arguments %s not found.",
                             functionName, argumentTypes);
-                    break;
+                    return expr;
                 }
 
                 // Function found, set the result type to the return type of the function
@@ -170,7 +172,7 @@ public class Typecheck {
                     c.error(expr.getLocation(),
                             "Trying to call function '%s' with %d arguments, but expected %d.",
                             functionName, argCount, expectedArgCount);
-                    break;
+                    return expr;
                 }
 
                 // Type-check and convert each argument against the corresponding parameter type
@@ -181,6 +183,7 @@ public class Typecheck {
                     // Try to convert the argument to the expected type
                     tryAndConvert(paramType, arg); // This will throw an error if conversion fails
                 }
+                return expr;
             }
             default -> {
                 // Handle other expressions that aren't explicitly handled
