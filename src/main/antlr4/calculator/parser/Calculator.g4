@@ -15,7 +15,7 @@ declaration
     : 'let' IDENTIFIER '=' expr
     ;
 
-declareFunction: FUNCTION IDENTIFIER '(' arglist ')' ':' retT=typeid (body = block | ';');
+declareFunction: FUNCTION IDENTIFIER '(' arglist ')' ':' retT=typeid body=block;
 
 arglist
     : (argument (',' argument)*)?
