@@ -31,6 +31,8 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
     public Tree visitStart(StartContext ctx) {
         /* We don't open a new scope here, because we should be in the global
            scope we opened in the constructor.  */
+        assert environments.size() == 1;
+        var oldGlobalEnvironment = new HashMap<>(environments.getFirst());
         var stmts = ctx.statement()
             /* Take all the parsed statements, ... */
             .stream()
@@ -41,6 +43,11 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
             .map(x -> (Statement) x)
             /* ... and put them into a list.  */
             .collect(Collectors.toCollection(ArrayList::new));
+        assert environments.size() == 1;
+
+        /* If we had an error, recover the global environment.  */
+        if (c.hadError())
+            environments.set(0, oldGlobalEnvironment);
         return new StatementList(getLocation(ctx), stmts);
     }
 
