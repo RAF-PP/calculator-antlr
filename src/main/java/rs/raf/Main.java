@@ -9,6 +9,8 @@ import rs.raf.calculator.Typecheck;
 import rs.raf.calculator.ast.ASTPrettyPrinter;
 import rs.raf.calculator.ast.CSTtoASTConverter;
 import rs.raf.calculator.ast.StatementList;
+import rs.raf.calculator.compiler.Compiler;
+import rs.raf.calculator.vm.VM;
 import rs.raf.utils.PrettyPrint;
 
 import java.io.BufferedReader;
@@ -20,6 +22,8 @@ public class Main {
     /* Holds the global scope, so keep it open all the time.  */
     private static final CSTtoASTConverter treeProcessor
         = new CSTtoASTConverter(calculator);
+    private static final Compiler compiler = new Compiler(calculator);
+    private static final VM vm = new VM(calculator);
 
     public static void main(String[] args) throws IOException {
         if (args.length == 1) {
@@ -81,5 +85,12 @@ public class Main {
         System.out.println("tAST:");
         program.prettyPrint(pp);
         if (calculator.hadError()) return;
+
+        var bytecode = compiler.compileInput(program);
+        calculator.dumpNewAssembly(System.out, bytecode);
+        /* The compiler cannot emit errors.  */
+        assert !calculator.hadError();
+
+        vm.run(bytecode);
     }
 }

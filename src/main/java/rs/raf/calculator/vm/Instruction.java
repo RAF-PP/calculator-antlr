@@ -1,39 +1,47 @@
-package rs.raf.calculator.ast;
+package rs.raf.calculator.vm;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 
-
-@EqualsAndHashCode
+@Data
 public final class Instruction {
 
     public enum Code {
         // Arithmetic Operations
-        ADDITION,    // PLUS
-        SUBTRACTION, // MINUS
-        MULTIPLICATION, // STAR
-        DIVISION,    // SLASH
-        CARET,      // %
+        ADD,       // PLUS
+        SUBTRACT,  // MINUS
+        MULTIPLY,  // STAR
+        DIVIDE,    // SLASH
+        RAISE,     // Raise (to a power).
 
         // Vector and List Operations
-        VECTOR_CONSTRUCT,  // Vector constructor '<'
+        VECTOR_CONSTRUCT(1),  // Vector constructor '<'
         VECTOR_ACCESS,     // Index access in vectors
 
         // Function and Return
-        FUNCTION_CALL,     // Calling a function
+        FUNCTION_CALL(1),  // Calling a function
         RETURN,            // Returning from a function
-
-        JUMP,              // Jump to another instruction, shouldn't?
-        CONDITIONAL_JUMP_TRUE, // Jump if condition is true
-        CONDITIONAL_JUMP_FALSE, // Jump if condition is false
+        RETURN_VOID,       // Returning from a function
+        BUILD_CLOSURE(1),  // Generate a closure for a function
 
         // Stack Operations
-        PUSH,              // Push an element to the stack
+        PUSH_CONSTANT(1),  // Push a constant from the constant tableo
         POP,               // Pop an element from the stack
+
+
+        // Local variable handling.
+        SET_LOCAL(1),
+        GET_LOCAL(1),
+
+        // Global variable handling.
+        SET_GLOBAL(1),
+        GET_GLOBAL(1),
+
+        // Upvalue handling.
+        GET_UPVALUE(1),
 
         // Others
         PRINT,             // Print statement
-        EXIT,              // Exit the program
+        FINISH_OUTER,      // Terminate a topmost blob
         ;
 
         public final int argCount;
@@ -47,16 +55,15 @@ public final class Instruction {
         }
     }
 
-    private Code opcode;
-    @Getter
-    private long arg1 = -1;
+    private final Code opcode;
+    private int arg1 = -1;
 
     public Instruction(Code opcode) {
         assert opcode.argCount == 0;
         this.opcode = opcode;
     }
 
-    public Instruction(Code opcode, long arg1) {
+    public Instruction(Code opcode, int arg1) {
         assert opcode.argCount == 1;
         this.opcode = opcode;
         this.arg1 = arg1;
@@ -66,7 +73,7 @@ public final class Instruction {
         return opcode;
     }
 
-    public void setArg1(long arg1) {
+    public void setArg1(int arg1) {
         assert opcode.argCount >= 1;
         this.arg1 = arg1;
     }
