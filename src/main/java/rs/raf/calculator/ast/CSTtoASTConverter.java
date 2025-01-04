@@ -163,14 +163,14 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
     public Tree visitDeclareFunction(DeclareFunctionContext ctx) {
         var name = ctx.IDENTIFIER().getText();
         var declLoc = getLocation(ctx.start).span(getLocation(ctx.retT.start));
-        openBlock();
-        var args = (Arguments) visitArglist(ctx.arglist());
-        var body = (StatementList) visit(ctx.body);
-        closeBlock();
-
-        var funDecl = new FunctionDeclaration(declLoc, args, name, body, convertType(ctx.retT));
-
+        var funDecl = new FunctionDeclaration(declLoc, null, name, null,
+                                              convertType(ctx.retT));
         pushDecl(name, funDecl);
+
+        openBlock();
+        funDecl.setArgs((Arguments) visitArglist(ctx.arglist()));
+        funDecl.setBody((StatementList) visit(ctx.body));
+        closeBlock();
 
         return funDecl;
     }

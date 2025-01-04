@@ -13,7 +13,7 @@ public class FunctionType implements Type {
     private Type returnType;
     private List<Type> argumentTypes;
 
-    public FunctionType (Type returnType, List<Type> argType)
+    public FunctionType(Type returnType, List<Type> argType)
     {
         this.returnType = returnType;
         this.argumentTypes = argType;

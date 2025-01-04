@@ -26,6 +26,15 @@ public class Typecheck {
                 stmt.getArgs().forEach(this::typecheck);
             }
             case FunctionDeclaration functionDeclaration -> {
+                functionDeclaration.setDeclaredType
+                    (new FunctionType(functionDeclaration.getReturnType(),
+                                      functionDeclaration
+                                      .getArgs()
+                                      .getArguments()
+                                      .stream()
+                                      .map(Declaration::getDeclaredType)
+                                      .toList()));
+
                 FunctionDeclaration oldFunctionDeclaration = currentFunction;
                 functions.add(functionDeclaration);
                 try {
@@ -154,15 +163,14 @@ public class Typecheck {
                 if (!(calleeType instanceof FunctionType function)) {
                     // Function not found, report an error
                     c.error(expr.getLocation(),
-                            "Function '%s' with arguments %s not found.",
-                            callee, argumentTypes.stream().map(Type::userReadableName).toList()
+                            "Trying to call non-function of type '%s'.",
+                            calleeType.userReadableName()
                     );
                     return expr;
                 }
                 // Function found, set the result type to the return type of the function
                 expr.setResultType(function.getReturnType());
 
-                // Validate the number of arguments (can be redundant if `getFunction` already checks this).
                 final var expectedArgCount = function.getArgumentTypes().size();
                 final var argCount = expr.getArguments().size();
                 if (argCount != expectedArgCount) {
@@ -209,26 +217,6 @@ public class Typecheck {
         }
 
         throw new IllegalStateException();
-    }
-
-    public FunctionType getFunction(String name, List<Type> argumentTypes) {
-        // Iterate over all registered functions
-        for (FunctionDeclaration func : functions) {
-            // Check if the function name matches
-            if (func.getName().equals(name)) {
-                // Extract the argument types from the function
-                List<Type> funcArgumentTypes = new ArrayList<>();
-                for (var arg : func.getArgs().getArguments()) {
-                    funcArgumentTypes.add(arg.getDeclaredType());
-                }
-
-                // Check if argument types match
-                if (funcArgumentTypes.equals(argumentTypes)) {
-                    return new FunctionType(func.getReturnType(), funcArgumentTypes);
-                }
-            }
-        }
-        return null;
     }
 
     private Expr tryAndConvert(Type expectedType, Expr expr) {

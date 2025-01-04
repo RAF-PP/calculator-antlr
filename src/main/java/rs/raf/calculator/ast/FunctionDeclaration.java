@@ -15,8 +15,8 @@ public final class FunctionDeclaration extends Declaration {
     private String name;
     private StatementList body;
 
-    public FunctionDeclaration (Location location, Arguments args, String name, StatementList body, Type returnType) {
-        super (location, name, null);
+    public FunctionDeclaration(Location location, Arguments args, String name, StatementList body, Type returnType) {
+        super(location, name, null);
         this.args = args;
         this.name = name;
         this.body = body;
