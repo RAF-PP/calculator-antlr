@@ -11,13 +11,13 @@ import java.util.List;
 @EqualsAndHashCode(callSuper=true)
 public final class FunctionCall extends Expr {
 
-    private String functionName;
+    private Expr function;
     private List<Expr> arguments;
 
-    public FunctionCall(Location location, String functionName, List<Expr> arguments) {
+    public FunctionCall(Location location, Expr function, List<Expr> arguments) {
         super(location);
-        this.functionName = functionName;
         this.arguments = arguments;
+        this.function = function;
     }
 
     private Type resultType;
@@ -27,7 +27,7 @@ public final class FunctionCall extends Expr {
         pp.node(
                 "FunctionCall",
                 () -> {
-                    pp.node("functionName", () -> pp.terminal(functionName));
+                    pp.node("function", () -> function.prettyPrint(pp));
 
                     pp.node(
                             "arguments",

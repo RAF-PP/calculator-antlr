@@ -134,7 +134,7 @@ public class Typecheck {
 
             case FunctionCall expr -> {
                 // Get the function name and arguments
-                String functionName = expr.getFunctionName();
+                var callee = typecheck(expr.getFunction());
                 List<Type> argumentTypes = new ArrayList<>();
 
                 // Collect the argument types from the expression
@@ -144,13 +144,13 @@ public class Typecheck {
                 }
 
                 // Look up the function in the symbol table or function registry
-                FunctionType function = getFunction(functionName, argumentTypes);
+                var calleeType = callee.getResultType();
 
-                if (function == null) {
+                if (!(calleeType instanceof FunctionType function)) {
                     // Function not found, report an error
                     c.error(expr.getLocation(),
                             "Function '%s' with arguments %s not found.",
-                            functionName, argumentTypes.stream().map(Type::userReadableName).toList()
+                            callee, argumentTypes.stream().map(Type::userReadableName).toList()
                     );
                     return expr;
                 }
@@ -163,7 +163,7 @@ public class Typecheck {
                 if (argCount != expectedArgCount) {
                     c.error(expr.getLocation(),
                             "Trying to call function '%s' with %d arguments, but expected %d.",
-                            functionName, argCount, expectedArgCount);
+                            callee, argCount, expectedArgCount);
                     return expr;
                 }
 

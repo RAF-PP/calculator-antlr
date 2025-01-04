@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.tree.*;
 
 import calculator.parser.CalculatorParser.*;
 import calculator.parser.CalculatorLexer;
+import calculator.parser.CalculatorParser;
 import calculator.parser.CalculatorVisitor;
 
 import rs.raf.calculator.Calculator;
@@ -305,15 +306,20 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         return new NumberLit(getLocation(ctx), Double.parseDouble(ctx.getText()));
     }
 
+    private Expr makeIdentifierRef(TerminalNode identifier) {
+        assert identifier.getSymbol().getType() == CalculatorParser.IDENTIFIER;
+        var loc = getLocation(identifier);
+        return lookup(loc, identifier.getText())
+            /* ... and if you do find it, make it into an expression, ... */
+            .map(decl -> (Expr) new VarRef(loc, decl))
+            /* ... and if you fail, make it an error expression.  */
+            .orElseGet(() -> new ErrorExpr(loc));
+    }
+
     @Override
     public Tree visitVariableReference(VariableReferenceContext ctx) {
         /* Try to find the variable, ... */
-        var loc = getLocation(ctx);
-        return lookup(loc, ctx.IDENTIFIER().getText())
-            /* ... and if you do find it, make it into an expression, ... */
-            .map(decl -> (Tree) new VarRef(loc, decl))
-            /* ... and if you fail, make it an error expression.  */
-            .orElseGet(() -> new ErrorExpr(loc));
+        return makeIdentifierRef(ctx.IDENTIFIER());
     }
 
     @Override
@@ -335,7 +341,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
 
     @Override
     public Tree visitFunctionCall(FunctionCallContext ctx) {
-        String functionName = ctx.IDENTIFIER().getText();
+        var functionName = ctx.IDENTIFIER();
 
         var expressionArgs = ctx.expr()
                 .stream()
@@ -343,7 +349,9 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
                 .map(x -> (Expr) x)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        return new FunctionCall(getLocation(ctx), functionName, expressionArgs);
+        return new FunctionCall(getLocation(ctx),
+                                makeIdentifierRef(functionName),
+                                expressionArgs);
     }
 
     @Override
