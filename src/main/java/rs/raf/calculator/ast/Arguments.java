@@ -8,7 +8,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public final class Arguments extends Statement{
+public final class Arguments extends Tree {
     private final List<Argument> arguments;
 
     public Arguments(Location location, List<Argument> arguments) {

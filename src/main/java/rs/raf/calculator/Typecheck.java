@@ -50,12 +50,6 @@ public class Typecheck {
                 stmt.setExpr(typecheck(stmt.getExpr()));
             }
             case StatementList stmt -> typecheck(stmt);
-            case Argument argument -> {
-                {/* Nothing to do.  */}
-            }
-            case Arguments arguments -> {
-                {/* Nothing to do.  */}
-            }
 
             case ReturnStatement returnStatement -> {
                 var cfn = currentFunction.getName();

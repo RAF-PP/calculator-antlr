@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public final class Argument extends Statement {
+public final class Argument extends Tree {
     private Type type;
     private final String identifier;
 
