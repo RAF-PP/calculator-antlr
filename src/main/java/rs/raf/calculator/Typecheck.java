@@ -213,8 +213,8 @@ public class Typecheck {
             if (func.getName().equals(name)) {
                 // Extract the argument types from the function
                 List<Type> funcArgumentTypes = new ArrayList<>();
-                for (Argument arg : func.getArgs().getArguments()) {
-                    funcArgumentTypes.add(arg.getType());
+                for (var arg : func.getArgs().getArguments()) {
+                    funcArgumentTypes.add(arg.getDeclaredType());
                 }
 
                 // Check if argument types match

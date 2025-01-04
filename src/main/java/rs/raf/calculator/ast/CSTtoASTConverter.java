@@ -173,7 +173,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         var arguments = ctx.argument()
                 .stream()
                 .map(this::visit)
-                .map(x -> (Argument) x) // Cast each visited result to an Argument
+                .map(x -> (Declaration) x)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         // Create an ArgumentList node from the collected arguments
@@ -188,7 +188,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         decl.setDeclaredType(convertType(ctx.typeid()));
         pushDecl(identifier, decl);
         // Create and return an Argument node
-        return new Argument(getLocation(ctx), identifier, convertType(ctx.typeid()));
+        return decl;
     }
 
     @Override

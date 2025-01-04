@@ -9,9 +9,9 @@ import java.util.List;
 @Getter
 @Setter
 public final class Arguments extends Tree {
-    private final List<Argument> arguments;
+    private final List<Declaration> arguments;
 
-    public Arguments(Location location, List<Argument> arguments) {
+    public Arguments(Location location, List<Declaration> arguments) {
         super(location);
         this.arguments = new ArrayList<>(arguments);
     }
@@ -19,7 +19,7 @@ public final class Arguments extends Tree {
     @Override
     public void prettyPrint(ASTPrettyPrinter pp) {
         pp.node("Arguments", () -> {
-            for (Argument argument : arguments) {
+            for (var argument : arguments) {
                 argument.prettyPrint(pp);
             }
         });
