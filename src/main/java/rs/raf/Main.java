@@ -70,9 +70,10 @@ public class Main {
 
         if (calculator.hadError()) return;
 
-        System.out.println("AST:");
         var pp = new ASTPrettyPrinter(System.out);
         var program = (StatementList) tree.accept(treeProcessor);
+
+        System.out.println("AST:");
         program.prettyPrint(pp);
         if (calculator.hadError()) return;
 
