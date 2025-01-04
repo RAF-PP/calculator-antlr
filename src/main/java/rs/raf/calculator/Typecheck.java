@@ -52,6 +52,11 @@ public class Typecheck {
             case StatementList stmt -> typecheck(stmt);
 
             case ReturnStatement returnStatement -> {
+                if (currentFunction == null) {
+                    c.error(returnStatement.getLocation(),
+                            "return outside function");
+                    break;
+                }
                 var cfn = currentFunction.getName();
                 var rt = (Type) currentFunction.getReturnType();
                 var needsReturn = !(rt instanceof VoidType);
