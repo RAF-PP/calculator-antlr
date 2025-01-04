@@ -1,5 +1,7 @@
 package rs.raf.calculator.ast;
 
+import java.util.Objects;
+
 import lombok.*;
 
 /** A variable declaration.  */
@@ -23,7 +25,15 @@ public sealed class Declaration extends Statement permits FunctionDeclaration {
     public void prettyPrint(ASTPrettyPrinter pp) {
 	pp.node("declaration of %s".formatted(name),
 		() -> {
-		    value.prettyPrint(pp);
+                    if (getDeclaredType() != null) {
+                        pp.terminal("type: %s"
+                                    .formatted(getDeclaredType()
+                                               .userReadableName()));
+                    }
+                    pp.terminal("identity: %s"
+                                .formatted(Objects.toIdentityString(this)));
+                    if (value != null)
+                        value.prettyPrint(pp);
 		});
     }
 }
