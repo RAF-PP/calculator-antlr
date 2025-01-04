@@ -1,5 +1,7 @@
 package rs.raf.calculator.ast;
 
+import java.util.Objects;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,6 +27,8 @@ public final class FunctionDeclaration extends Declaration {
     public void prettyPrint(ASTPrettyPrinter pp) {
         pp.node("FunctionDeclaration", () -> {
             pp.terminal("name: " + name);
+            pp.terminal("identity: %s"
+                        .formatted(Objects.toIdentityString(this)));
             pp.node("returnType", () -> {
                 if (returnType != null) {
                     pp.terminal("type: " + returnType.userReadableName());
