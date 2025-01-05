@@ -5,11 +5,11 @@ import java.util.List;
 
 import lombok.*;
 
-@Data
-@RequiredArgsConstructor
 /** Activation record of a blob. Contains the operand stack while executing
     this blob, the blob itself, as well as upvalues and locals (if
     applicable), as well as the IP to return to after executing.   */
+@Data
+@RequiredArgsConstructor
 public class BlobInvocation {
     /** Stack of operands while executing this blob.  */
     private final List<Value> operandStack = new ArrayList<>();
