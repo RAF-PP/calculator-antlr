@@ -42,10 +42,10 @@ public class VM {
                 stack.add(new Value.Number
                           (switch(op) {
                           case ADD -> lhs + rhs;
-                          case SUBTRACT -> lhs + rhs;
-                          case MULTIPLY -> lhs + rhs;
-                          case DIVIDE -> lhs + rhs;
-                          case RAISE -> lhs + rhs;
+                          case SUBTRACT -> lhs - rhs;
+                          case MULTIPLY -> lhs * rhs;
+                          case DIVIDE -> lhs / rhs;
+                          case RAISE -> Math.pow(lhs, rhs);
                           default ->
                               throw new IllegalArgumentException(op.name());
                           }));
