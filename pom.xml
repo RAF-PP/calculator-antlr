@@ -87,6 +87,17 @@
                     </archive>
                 </configuration>
             </plugin>
+
+            <!-- Documentation generation -->
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-javadoc-plugin</artifactId>
+              <version>3.11.2</version>
+              <configuration>
+                <show>private</show>
+                <excludePackageNames>calculator.parser</excludePackageNames>
+              </configuration>
+            </plugin>
         </plugins>
     </build>
 
