@@ -2,7 +2,7 @@ package rs.raf.calculator.compiler;
 
 import java.util.IdentityHashMap;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import rs.raf.calculator.Calculator;
 import rs.raf.calculator.ast.*;
 import rs.raf.calculator.compiler.InTranslationBlob.UpvalSlotInfo;
@@ -73,7 +73,7 @@ import static rs.raf.calculator.vm.Instruction.Code.*;
     {@code n} is in the slot in the appropriate table, and the opcode is {@code
     GET_LOCAL} if the reference is to a local, otherwise {@code GET_UPVALUE}.
 */
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class Compiler {
     /* This class should not emit errors.  */
     /** Wider compilation context.  */
