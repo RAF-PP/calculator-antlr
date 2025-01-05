@@ -217,6 +217,9 @@ public class Compiler {
            ends up in the new function.  */
         compileBlock(fn.getBody());
 
+        /* Add a void return.  If function is not void, well, that's UB.  */
+        emit(RETURN_VOID);
+
         /* Populate the function data.  */
         function.setCode(functionBlob.getCode());
         function.setLocalCount(functionBlob.getMaxLocalDepth());
