@@ -72,12 +72,15 @@ public class Calculator {
     @Getter(AccessLevel.NONE)
     private final List<Function> functions = new ArrayList<>();
 
+    /** Saves a function and returns its function slot.
+        @return The function slot {@code newFunction} is saved in.  */
     public int addFunction(Function newFunction) {
         var itsIndex = functions.size();
         functions.add(newFunction);
         return itsIndex;
     }
 
+    /** @return The function in slot {@code functionId}.  */
     public Function getFunction(int functionId) {
         return functions.get(functionId);
     }
