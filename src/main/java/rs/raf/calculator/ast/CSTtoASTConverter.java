@@ -70,7 +70,7 @@ public class CSTtoASTConverter extends AbstractParseTreeVisitor<Tree> implements
         /* Intentionally overwriting the old variable as error recovery.  */
         var oldDecl = environments.getLast().put(name, decl);
         if (oldDecl != null) {
-            c.error(decl.getLocation(), "");
+            c.error(decl.getLocation(), "redeclaring variable '%s'", name);
         }
     }
 
