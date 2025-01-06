@@ -167,9 +167,8 @@ public class VM {
                 /* Arity.  */
                 final var aty = insn.getArg1();
                 /* Extract the closure and arguments from the stack.  */
-                final var operands =
-                    new ArrayList<>(stack.subList(stack.size() - aty - 1,
-                                                  stack.size()));
+                final var operands = stack.subList(stack.size() - aty - 1,
+                                                   stack.size());
                 /* The closure is the first (deepest) thing extracted.  */
                 final var closure = ((Value.Closure) operands.getFirst());
 
@@ -198,8 +197,8 @@ public class VM {
                 /* Reset ip to the start of the instruction.  The old one was
                    saved above.  */
                 ip = 0;
-                /* Pop the arguments.  */
-                for (int i = 0; i < operands.size(); i++)
+                /* Pop the arguments and closure.  */
+                for (int i = 0; i < aty + 1; i++)
                     stack.removeLast();
             }
 
